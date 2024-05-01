@@ -30,4 +30,8 @@ router.get('/getposts', passport.authenticate('jwt', {session: false}), post_con
 
 router.get('/deletepost/:postid', passport.authenticate('jwt', {session: false}), post_controller.deletePost)
 
+router.post('/postcomment/:postid', passport.authenticate('jwt', {session: false}), comment_controller.postComment)
+
+router.post('/deletecomment/:postid/:commentid', passport.authenticate('jwt', {session: false}), comment_controller.deleteComment)
+
 module.exports = router;
