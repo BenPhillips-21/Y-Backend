@@ -63,3 +63,25 @@ async function updateUserWithPost(userId, post) {
     return updatedUser;
 }
 
+exports.deletePost = asyncHandler(async (req, res) => {
+    let postId = req.params.postid
+
+    try {
+        const postToDelete = await Post.findById(postId)
+
+        if (postToDelete.poster.toString() !== req.user._id.toString()) {
+            return res.json("You can't delete this post")
+        }
+
+        const deletedPost = await Post.findByIdAndDelete(postId)
+
+        if (!deletedPost) {
+            return { success: false, msg: "Post not found" };
+          }
+
+          return res.json({ success: true, msg: "Post deleted successfully" })
+    } catch (err) {
+        res.json(err)
+    }
+})
+
