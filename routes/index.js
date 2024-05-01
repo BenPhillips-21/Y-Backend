@@ -20,4 +20,6 @@ router.get('/acceptfriendrequest/:userId', passport.authenticate('jwt', {session
 
 router.post('/createpost', passport.authenticate('jwt', {session: false}), post_controller.createPost)
 
+router.get('/getposts', passport.authenticate('jwt', {session: false}), post_controller.getPosts)
+
 module.exports = router;
