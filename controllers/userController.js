@@ -62,7 +62,6 @@ exports.userLogin = asyncHandler(async (req, res) => {
     }
   });
 
-// Needs to check if the userId is already in friendRequests box
 exports.sendFriendRequest = asyncHandler(async (req, res) => {
     try {
         const userId = req.params.userId;
@@ -72,6 +71,12 @@ exports.sendFriendRequest = asyncHandler(async (req, res) => {
         for (let i = 0; i < presentUser.sentFriendRequests.length; i++) {
             if (presentUser.sentFriendRequests[i].toString() === userId) {
                 return res.json("User already requested")
+            }
+        }
+
+        for (let i = 0; i < presentUser.friends.length; i++) {
+            if (presentUser.friends[i].toString() === userId) {
+                return res.json("Already friends with this user")
             }
         }
   
