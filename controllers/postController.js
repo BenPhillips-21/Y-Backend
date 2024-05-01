@@ -35,7 +35,7 @@ exports.createPost = asyncHandler(async (req, res) => {
         poster: userId,
         postContent: req.body.postContent,
         comments: [],
-        likes: 0
+        likes: []
     })
         await newPost.save()
 
@@ -82,6 +82,42 @@ exports.deletePost = asyncHandler(async (req, res) => {
           return res.json({ success: true, msg: "Post deleted successfully" })
     } catch (err) {
         res.json(err)
+    }
+})
+
+exports.likePost = asyncHandler(async (req, res) => {
+    const userId = req.user._id
+    const postId = req.params.postid
+
+    try {
+        const postToUpdate = await Post.findById(postId)
+
+        if (postToUpdate.likes.length > 0) {
+        for (let i = 0; i < postToUpdate.likes.length; i++) {
+            if (postToUpdate.likes[i].toString() === userId.toString()) {
+                await Post.findByIdAndUpdate(
+                    postId,
+                    { $pull: { likes: userId } },
+                    { new: true }
+                )
+
+                return res.json({ success: true, msg: "Post like retracted" })
+            }
+        }}
+
+        const updatedPost = await Post.findByIdAndUpdate(
+            postId,
+            { $push: { likes: userId } },
+            { new: true }
+        )
+
+        if (!updatedPost) {
+            return res.json("Couldn't find post with specified id")
+        }
+        
+        return res.json({ success: true, msg: "Post liked successfully" })
+    } catch (err) {
+        return res.json(err)
     }
 })
 
