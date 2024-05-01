@@ -14,6 +14,12 @@ router.post('/sign-up', user_controller.userSignUp)
 
 router.post('/login', user_controller.userLogin)
 
+router.get('/myfriends', passport.authenticate('jwt', {session: false}), user_controller.getFriends)
+
+router.get('/friendrequests', passport.authenticate('jwt', {session: false}), user_controller.friendRequests)
+
+router.get('/sentfriendrequests', passport.authenticate('jwt', {session: false}), user_controller.sentFriendRequests)
+
 router.get('/sendfriendrequest/:userId', passport.authenticate('jwt', {session: false}), user_controller.sendFriendRequest)
 
 router.get('/acceptfriendrequest/:userId', passport.authenticate('jwt', {session: false}), user_controller.acceptFriendRequest)

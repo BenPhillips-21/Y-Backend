@@ -17,7 +17,7 @@ exports.getPosts = asyncHandler(async (req, res) => {
         }
 
         const allFriendPosts = await Post.find({ _id: { $in: allFriendPostIDs }})
-            .select('poster postContent likes')
+            .select('poster postContent likes comments')
             .exec()
 
         res.json(allFriendPosts)

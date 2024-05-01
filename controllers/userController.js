@@ -138,3 +138,49 @@ exports.acceptFriendRequest = asyncHandler(async (req, res) => {
     console.log(acceptedUser, "updated accepted user")
     res.json("Friend request accepted")
 })
+
+exports.getFriends = asyncHandler(async (req, res) => {
+    const userFriends = req.user.friends.map(friend => friend);
+
+    const allFriends = await User.find({ _id: { $in: userFriends }})
+            .select('username bio friends')
+            .populate({
+                path: 'friends', 
+                  select: 'username' 
+              })
+              
+            .exec()
+
+    res.json(allFriends)
+})
+
+exports.friendRequests = asyncHandler(async (req, res) => {
+    const friendRequests = req.user.friendRequests.map(request => request)
+
+    const allFriendRequests = await User.find({ _id: { $in: friendRequests }})
+    .select('username bio')
+    .populate({
+        path: 'friends', 
+          select: 'username' 
+      })
+      
+    .exec()
+
+    res.json(allFriendRequests)
+})
+
+exports.sentFriendRequests = asyncHandler(async (req, res) => {
+    const sentFriendRequests = req.user.sentFriendRequests.map(request => request)
+
+    const allSentFriendRequests = await User.find({ _id: { $in: sentFriendRequests }})
+    .select('username bio')
+    .populate({
+        path: 'friends', 
+          select: 'username' 
+      })
+      
+    .exec()
+
+    res.json(allSentFriendRequests)
+})
+
