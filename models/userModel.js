@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema
 
 const UserSchema = new Schema({
-    username: {type: String, unique: true, required: true},
+    username: {type: String, required: true},
     password: {type: String, required: true},
     bio: {type: String, required: false, default: "This is the default bio"},
     profilePic: { 
@@ -17,6 +17,8 @@ const UserSchema = new Schema({
           },
         },
     friends: [{type: Schema.Types.ObjectId, ref: "User"}],
+    friendRequests: [{type: Schema.Types.ObjectId, ref: "User"}],
+    sentFriendRequests: [{type: Schema.Types.ObjectId, ref: "User"}],
     posts: [{type: Schema.Types.ObjectId, ref: "Post"}],
     admin: { type: Boolean, default: false }
 });
