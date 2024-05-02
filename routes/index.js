@@ -42,6 +42,8 @@ router.post('/createpost', passport.authenticate('jwt', {session: false}), post_
 
 router.get('/getposts', passport.authenticate('jwt', {session: false}), post_controller.getPosts)
 
+router.get('/getpost/:postid', passport.authenticate('jwt', {session: false}), post_controller.getPost)
+
 router.get('/likepost/:postid', passport.authenticate('jwt', {session: false}), post_controller.likePost)
 
 router.get('/deletepost/:postid', passport.authenticate('jwt', {session: false}), post_controller.deletePost)

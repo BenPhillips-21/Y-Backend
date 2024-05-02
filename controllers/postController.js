@@ -27,6 +27,23 @@ exports.getPosts = asyncHandler(async (req, res) => {
     }
 })
 
+exports.getPost = asyncHandler(async (req, res) => {
+    try {
+        let postId = req.params.postid;
+
+        let post = await Post.findById(postId);
+
+        if (!post) {
+            return res.status(404).json({ message: "Could not find this post" });
+        }
+
+        return res.json(post);
+    } catch (err) {
+        console.error("Error fetching post:", err);
+        return res.status(500).json({ message: "Internal server error" });
+    }
+});
+
 exports.createPost = asyncHandler(async (req, res) => {
     const userId = req.user._id;
 
