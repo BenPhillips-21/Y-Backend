@@ -109,7 +109,7 @@ exports.updateBio = asyncHandler(async (req, res) => {
 
 exports.updateProfilePicture = asyncHandler(async (req, res) => {
   let userId = req.user._id
-  
+
   try {
     const imageUpload = await cloudinary.uploader.upload(req.file.path);
 
@@ -221,6 +221,33 @@ exports.acceptFriendRequest = asyncHandler(async (req, res) => {
     console.log(currentUser, "updated current user")
     console.log(acceptedUser, "updated accepted user")
     res.json("Friend request accepted")
+})
+
+exports.removeFriend = asyncHandler(async (req, res) => {
+  const currentUserId = req.user._id
+  const exFriendId = req.params.userid
+
+  const currentUser = await User.findByIdAndUpdate(
+    currentUserId,
+    { $pull: { friends: exFriendId } },
+    { new: true }
+  )
+
+  if (!currentUser) {
+    return res.json("Could not find current user")
+  }
+
+  const exFriend = await User.findByIdAndUpdate(
+    exFriendId,
+    { $pull: { friends: currentUserId } },
+    { new: true }
+  )
+
+  if (!exFriend) {
+    return res.json("Could not find friend to remove")
+  }
+
+  return res.json({ success: true, message: "Friend removed", currentUser })
 })
 
 exports.getFriends = asyncHandler(async (req, res) => {

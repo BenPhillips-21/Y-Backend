@@ -36,6 +36,8 @@ router.get('/sendfriendrequest/:userid', passport.authenticate('jwt', {session: 
 
 router.get('/acceptfriendrequest/:userid', passport.authenticate('jwt', {session: false}), user_controller.acceptFriendRequest)
 
+router.get('/removefriend/:userid', passport.authenticate('jwt', {session: false}), user_controller.removeFriend)
+
 router.post('/createpost', passport.authenticate('jwt', {session: false}), post_controller.createPost)
 
 router.get('/getposts', passport.authenticate('jwt', {session: false}), post_controller.getPosts)
