@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcryptjs")
 const User = require("../models/userModel");
+const cloudinary = require("../utils/cloudinary");
 
 require('dotenv').config();
 
@@ -62,9 +63,92 @@ exports.userLogin = asyncHandler(async (req, res) => {
     }
   });
 
+exports.myProfile = asyncHandler(async (req, res) => {
+  const userId = req.user._id
+
+  let myProfile = await User.findById(userId)
+
+  if (!myProfile) {
+    res.json("Could not find this user")
+  }
+
+  res.json(myProfile)
+})
+
+exports.updateUsername = asyncHandler(async (req, res) => {
+  let userId = req.user._id
+
+  let updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { $set: { username: req.body.username } },
+    { new: true }
+  )
+
+  if (!updatedUser) {
+    return res.json("Could not find this user")
+  }
+
+  return res.json({success: true, message: "Username updated successfully", updatedUser})
+})
+
+exports.updateBio = asyncHandler(async (req, res) => {
+  let userId = req.user._id
+
+  let updatedUser = await User.findByIdAndUpdate(
+    userId,
+    { $set: { bio: req.body.bio } },
+    { new: true }
+  )
+
+  if (!updatedUser) {
+    return res.json("could not find this user")
+  }
+
+  return res.json({ success: true, message: "User bio updated successfully", updatedUser })
+})
+
+exports.updateProfilePicture = asyncHandler(async (req, res) => {
+  let userId = req.user._id
+  
+  try {
+    const imageUpload = await cloudinary.uploader.upload(req.file.path);
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        $set: {
+          profilePic: {
+            public_id: imageUpload.public_id,
+            url: imageUpload.secure_url,
+          },
+        },
+      },
+      { new: true }
+    );
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+
+})
+
+exports.getUser = asyncHandler(async (req, res) => {
+  const userId = req.params.userid;
+
+  let userProfile = await User.findById(userId)
+
+  if (!userProfile) {
+    res.json("Could not find this user")
+  }
+
+  res.json(userProfile)
+})
+
+
+
 exports.sendFriendRequest = asyncHandler(async (req, res) => {
     try {
-        const userId = req.params.userId;
+        const userId = req.params.userid;
 
         const presentUser = await User.findById(req.user._id);
 
@@ -114,7 +198,7 @@ exports.sendFriendRequest = asyncHandler(async (req, res) => {
   });
 
 exports.acceptFriendRequest = asyncHandler(async (req, res) => {
-    const userId = req.params.userId;
+    const userId = req.params.userid;
 
     const currentUser = await User.findByIdAndUpdate(
         req.user._id,
