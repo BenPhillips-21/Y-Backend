@@ -7,10 +7,6 @@ require('dotenv').config();
 
 const jwt = require("jsonwebtoken");
 
-exports.protected = asyncHandler(async (req, res) => {
-    return res.json('protected')
-})
-
 exports.userSignUp = asyncHandler(async (req, res) => {
     if (req.body.password !== req.body.confirmedPassword) {
       return res.status(400).json({ error: 'Password and confirmed password do not match' });
@@ -67,12 +63,37 @@ exports.myProfile = asyncHandler(async (req, res) => {
   const userId = req.user._id
 
   let myProfile = await User.findById(userId)
+  .populate('friendRequests')
+  .populate('friends')
+  .populate({
+    path: 'posts', 
+      populate: 'poster' 
+  })
+  .exec()
 
   if (!myProfile) {
     res.json("Could not find this user")
   }
 
   res.json(myProfile)
+})
+
+exports.getUser = asyncHandler(async (req, res) => {
+  const userId = req.params.userid;
+
+  let userProfile = await User.findById(userId)
+  .populate('friends')
+  .populate({
+    path: 'posts', 
+      populate: 'poster' 
+  })
+  .exec()
+
+  if (!userProfile) {
+    res.json("Could not find this user")
+  }
+
+  res.json(userProfile)
 })
 
 exports.updateUsername = asyncHandler(async (req, res) => {
@@ -132,16 +153,17 @@ exports.updateProfilePicture = asyncHandler(async (req, res) => {
 
 })
 
-exports.getUser = asyncHandler(async (req, res) => {
-  const userId = req.params.userid;
+exports.getAllUsers = asyncHandler(async (req, res) => {
+  let allUsers = await User.find()
+  .select('username profilePic')
+  .populate('profilePic')
+  .exec()
 
-  let userProfile = await User.findById(userId)
-
-  if (!userProfile) {
-    res.json("Could not find this user")
+  if (!allUsers) {
+    req.json("Could not find all users")
   }
 
-  res.json(userProfile)
+  res.json(allUsers)
 })
 
 

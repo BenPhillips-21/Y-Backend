@@ -5,7 +5,6 @@ const User = require("../models/userModel");
 exports.getPosts = asyncHandler(async (req, res) => {
     try {
         const userFriends = req.user.friends.map(friend => friend._id);
-        console.log(userFriends)
         
         let allFriendPostIDs = []
 
@@ -16,8 +15,15 @@ exports.getPosts = asyncHandler(async (req, res) => {
             }
         }
 
+        for (let j = 0; j < req.user.posts.length; j++) {
+            allFriendPostIDs.push(req.user.posts[j])
+        }
+
         const allFriendPosts = await Post.find({ _id: { $in: allFriendPostIDs }})
-            .select('poster postContent likes comments')
+            .select('poster postContent likes comments dateSent')
+            .populate('poster')
+            .populate({path: 'comments', populate: { path: 'commenter' }})
+            .sort({dateSent: -1})
             .exec()
 
         res.json(allFriendPosts)
@@ -46,11 +52,13 @@ exports.getPost = asyncHandler(async (req, res) => {
 
 exports.createPost = asyncHandler(async (req, res) => {
     const userId = req.user._id;
+    let date = Date.now()
 
     try {
         const newPost = new Post({
         poster: userId,
         postContent: req.body.postContent,
+        dateSent: date,
         comments: [],
         likes: []
     })

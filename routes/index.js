@@ -24,6 +24,8 @@ router.post('/updatebio', passport.authenticate('jwt', {session: false}), user_c
 
 router.post('/updateprofilepicture', passport.authenticate('jwt', {session: false}), upload.single('image'), user_controller.updateProfilePicture)
 
+router.get('/getallusers', passport.authenticate('jwt', {session: false}), user_controller.getAllUsers)
+
 router.get('/getuser/:userid', passport.authenticate('jwt', {session: false}), user_controller.getUser)
 
 router.get('/myfriends', passport.authenticate('jwt', {session: false}), user_controller.getFriends)
@@ -50,6 +52,6 @@ router.get('/deletepost/:postid', passport.authenticate('jwt', {session: false})
 
 router.post('/postcomment/:postid', passport.authenticate('jwt', {session: false}), comment_controller.postComment)
 
-router.post('/deletecomment/:postid/:commentid', passport.authenticate('jwt', {session: false}), comment_controller.deleteComment)
+router.get('/deletecomment/:postid/:commentid', passport.authenticate('jwt', {session: false}), comment_controller.deleteComment)
 
 module.exports = router;

@@ -6,10 +6,12 @@ const Comment = require("../models/commentModel")
 exports.postComment = asyncHandler(async (req, res) => {
     const userId = req.user._id;
     const postId = req.params.postid
+    let date = Date.now()
     try {
         const newComment = new Comment({
             commenter: userId,
-            commentContent: req.body.commentContent
+            commentContent: req.body.commentContent,
+            dateSent: date
         })
 
         await newComment.save()
