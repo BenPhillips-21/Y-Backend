@@ -16,6 +16,8 @@ router.post('/sign-up', user_controller.userSignUp)
 
 router.post('/login', user_controller.userLogin)
 
+router.get('/demologin', user_controller.demoLogin)
+
 router.get('/myprofile', passport.authenticate('jwt', {session: false}), user_controller.myProfile)
 
 router.post('/updateusername', passport.authenticate('jwt', {session: false}), user_controller.updateUsername)
@@ -40,7 +42,7 @@ router.get('/acceptfriendrequest/:userid', passport.authenticate('jwt', {session
 
 router.get('/removefriend/:userid', passport.authenticate('jwt', {session: false}), user_controller.removeFriend)
 
-router.post('/createpost', passport.authenticate('jwt', {session: false}), post_controller.createPost)
+router.post('/createpost', passport.authenticate('jwt', {session: false}), upload.single('image'), post_controller.createPost)
 
 router.get('/getposts', passport.authenticate('jwt', {session: false}), post_controller.getPosts)
 

@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const Post = require("../models/postModel");
 const User = require("../models/userModel");
+const cloudinary = require("../utils/cloudinary");
 
 exports.getPosts = asyncHandler(async (req, res) => {
     try {
@@ -22,6 +23,7 @@ exports.getPosts = asyncHandler(async (req, res) => {
         const allFriendPosts = await Post.find({ _id: { $in: allFriendPostIDs }})
             .select('poster postContent likes comments dateSent')
             .populate('poster')
+            .populate('image')
             .populate({path: 'comments', populate: { path: 'commenter' }})
             .sort({dateSent: -1})
             .exec()
@@ -52,25 +54,36 @@ exports.getPost = asyncHandler(async (req, res) => {
 
 exports.createPost = asyncHandler(async (req, res) => {
     const userId = req.user._id;
-    let date = Date.now()
+    const { postContent } = req.body;
+    let imageUrl = null;
 
     try {
+        if (req.file) {
+            const imageUpload = await cloudinary.uploader.upload(req.file.path);
+            imageUrl = imageUpload.secure_url;
+        }
+
         const newPost = new Post({
-        poster: userId,
-        postContent: req.body.postContent,
-        dateSent: date,
-        comments: [],
-        likes: []
-    })
-        await newPost.save()
+            poster: userId,
+            dateSent: new Date(),
+            comments: [],
+            likes: [],
+            image: {
+                url: imageUrl || ''
+            },
+            postContent: postContent || ''
+        });
 
-        await updateUserWithPost(userId, newPost)
+        await newPost.save();
 
-        return res.json({ success: true, message: "Post saved!", newPost });
+        await updateUserWithPost(userId, newPost);
+
+        return res.status(201).json({ success: true, message: "Post saved!", newPost });
     } catch (err) {
-        res.json(err)
+        console.error("Error creating post:", err);
+        return res.status(500).json({ success: false, message: "Failed to create post", error: err.message });
     }
-})
+});
 
 async function updateUserWithPost(userId, post) {
     const updatedUser = await User.findByIdAndUpdate(
