@@ -5,7 +5,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const cors = require('cors');
 const compression = require("compression");
-const helmet = require("helmet");
 
 const mongoose = require('mongoose');
 
@@ -32,19 +31,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(cors());
 app.use(compression()); 
-app.use(
-  helmet.contentSecurityPolicy({
-    directives: {
-      "script-src": ["'self'", "code.jquery.com", "cdn.jsdelivr.net"],
-    },
-  }),
-);
-const RateLimit = require("express-rate-limit");
-const limiter = RateLimit({
-  windowMs: 1 * 60 * 1000,
-  max: 40,
-});
-app.use(limiter);
 
 app.use('/', indexRouter);
 
