@@ -14,6 +14,9 @@ exports.userSignUp = asyncHandler(async (req, res) => {
     if (req.body.password.length < 6) {
       return res.status(400).json({ error: 'Password must be at least 6 characters long' });
     }
+    if (req.body.username.length > 20) {
+      return res.status(400).json({ error: 'Username cannot be longer than 20 characters' });
+    }
   bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
     if (err) {
       return next(err); 
