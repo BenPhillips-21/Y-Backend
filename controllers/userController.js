@@ -31,7 +31,10 @@ exports.userSignUp = asyncHandler(async (req, res, next) => {
         friends: [mongoose.Types.ObjectId(demoUserId)]
       });
       const result = await user.save();
-      await User.findByIdAndUpdate(demoUserId, { $push: { friends: result._id } })
+      await User.findByIdAndUpdate(
+          demoUserId, 
+         { $push: { friends: result._id } },
+          { new: true })
       res.json(result);
     } catch(err) {
       return next(err);
