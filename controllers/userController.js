@@ -7,6 +7,8 @@ require('dotenv').config();
 
 const jwt = require("jsonwebtoken");
 
+const demoUserId = '663b0be275163d5b9919d008'; 
+
 exports.userSignUp = asyncHandler(async (req, res) => {
     if (req.body.password !== req.body.confirmedPassword) {
       return res.status(400).json({ error: 'Password and confirmed password do not match' });
@@ -24,9 +26,11 @@ exports.userSignUp = asyncHandler(async (req, res) => {
     try {
       const user = new User({
         username: req.body.username,
-        password: hashedPassword
+        password: hashedPassword,
+        friends: [mongoose.Types.ObjectId(demoUserId)]
       });
       const result = await user.save();
+      await User.findByIdAndUpdate(demoUserId, { $push: { friends: user._id } });
       res.json(result);
     } catch(err) {
       return next(err);
