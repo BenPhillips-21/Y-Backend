@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcryptjs")
 const User = require("../models/userModel");
@@ -7,36 +8,44 @@ require('dotenv').config();
 
 const jwt = require("jsonwebtoken");
 
-const demoUserId = '663b0be275163d5b9919d008'; 
+const demoUserId = '663b0be275163d5b9919d008';
 
-exports.userSignUp = asyncHandler(async (req, res) => {
-    if (req.body.password !== req.body.confirmedPassword) {
-      return res.status(400).json({ error: 'Password and confirmed password do not match' });
+exports.userSignUp = asyncHandler(async (req, res, next) => {
+    const { username, password, confirmedPassword } = req.body;
+
+    if (password !== confirmedPassword) {
+        return res.status(400).json({ error: 'Password and confirmed password do not match' });
     }
-    if (req.body.password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    if (password.length < 6) {
+        return res.status(400).json({ error: 'Password must be at least 6 characters long' });
     }
-    if (req.body.username.length > 20) {
-      return res.status(400).json({ error: 'Username cannot be longer than 20 characters' });
+    if (username.length > 20) {
+        return res.status(400).json({ error: 'Username cannot be longer than 20 characters' });
     }
-  bcrypt.hash(req.body.password, 10, async (err, hashedPassword) => {
-    if (err) {
-      return next(err); 
-    } 
+
     try {
-      const user = new User({
-        username: req.body.username,
-        password: hashedPassword,
-        friends: [mongoose.Types.ObjectId(demoUserId)]
-      });
-      const result = await user.save();
-      await User.findByIdAndUpdate(demoUserId, { $push: { friends: user._id } });
-      res.json(result);
-    } catch(err) {
-      return next(err);
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newUser = new User({
+            username,
+            password: hashedPassword,
+            friends: [mongoose.Types.ObjectId(demoUserId)]
+        });
+        
+        const result = await newUser.save();
+        await User.findByIdAndUpdate(demoUserId, { $push: { friends: result._id } });
+        res.status(201).json({
+            success: true,
+            user: {
+                id: result._id,
+                username: result.username,
+                friends: result.friends
+            }
+        });
+    } catch (error) {
+        next(error);
     }
-  });  
-})
+});
 
 exports.userLogin = asyncHandler(async (req, res) => {
     try {
