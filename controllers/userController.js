@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcryptjs")
 const User = require("../models/userModel");
@@ -8,9 +7,7 @@ require('dotenv').config();
 
 const jwt = require("jsonwebtoken");
 
-const demoUserId = '663b0be275163d5b9919d008';
-
-exports.userSignUp = asyncHandler(async (req, res, next) => {
+exports.userSignUp = asyncHandler(async (req, res) => {
     if (req.body.password !== req.body.confirmedPassword) {
       return res.status(400).json({ error: 'Password and confirmed password do not match' });
     }
@@ -27,14 +24,9 @@ exports.userSignUp = asyncHandler(async (req, res, next) => {
     try {
       const user = new User({
         username: req.body.username,
-        password: hashedPassword,
-        friends: [mongoose.Types.ObjectId(demoUserId)]
+        password: hashedPassword
       });
       const result = await user.save();
-      await User.findByIdAndUpdate(
-          demoUserId, 
-         { $push: { friends: result._id } },
-          { new: true })
       res.json(result);
     } catch(err) {
       return next(err);
